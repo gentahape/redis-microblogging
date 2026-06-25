@@ -24,7 +24,7 @@ const profile = async (req, res, next) => {
 
 const follow = async (req, res, next) => {
     try {
-        await userService.follow(req.body);
+        await userService.follow(req.params.user_id, req.body.target_id);
         res.status(200).json(responseSuccess('User followed successfully', null));
     } catch (error) {
         next(error);
@@ -33,7 +33,7 @@ const follow = async (req, res, next) => {
 
 const unfollow = async (req, res, next) => {
     try {
-        await userService.unfollow(req.body);
+        await userService.unfollow(req.params.user_id, req.body.target_id);
         res.status(200).json(responseSuccess('User unfollowed successfully', null));
     } catch (error) {
         next(error);

@@ -37,9 +37,7 @@ const profile = async (userId) => {
     return userProfile;
 };
 
-const follow = async (request) => {
-    const { user_id, target_id } = request;
-
+const follow = async (user_id, target_id) => {
     if (!user_id || !target_id) {
         throw new ResponseError(400, 'User ID and target ID are required');
     }
@@ -76,9 +74,7 @@ const follow = async (request) => {
     return true;
 };
 
-const unfollow = async (request) => {
-    const { user_id, target_id } = request;
-
+const unfollow = async (user_id, target_id) => {
     const followingKey = `user:${user_id}:following`;
     const followersKey = `user:${target_id}:followers`;
 
