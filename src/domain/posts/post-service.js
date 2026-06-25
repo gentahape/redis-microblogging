@@ -2,9 +2,7 @@ const redisClient = require("../../config/redis");
 const { extractHashtags } = require("../../utils/helpers");
 const { ResponseError } = require("../../utils/responses");
 
-const create = async (request) => {
-    const { user_id, content } = request;
-
+const create = async (user_id, content) => {
     if (!user_id || !content) {
         throw new ResponseError(400, 'User ID and content are required');
     }
@@ -86,7 +84,35 @@ const get = async (userId) => {
     }
 }
 
+const remove = async (request) => {
+    const { user_id, post_id } = request;
+
+    const userKey = `user:${user_id}`;
+    const postKey = `post:${post_id}`;
+
+    const userExists = await redisClient.exists(userKey);
+    if (!userExists) {
+        throw new ResponseError(404, 'User not found');
+    }
+
+    const postExists = await redisClient.exists(postKey);
+    if (!postExists) {
+        throw new ResponseError(404, 'Post not found');
+    }
+
+    const postUserId = await redisClient.hGet(postKey, 'user_id');
+    if (postUserId !== user_id) {
+        throw new ResponseError(403, 'You do not have permission to delete this post');
+    }
+
+    await redisClient.del(postKey);
+    await redisClient.hIncrBy(userKey, 'posts_count', -1);
+
+    return true;
+}
+
 module.exports = {
     create,
-    get
+    get,
+    remove
 }
